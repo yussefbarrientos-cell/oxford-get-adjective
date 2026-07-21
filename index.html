@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listen & Repeat: Get Practice</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --answer: #059669;
+    --answer-dark: #047857;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  header {
+    max-width: 800px;
+    margin: 0 auto 24px auto;
+    text-align: center;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; }
+
+  .controls {
+    max-width: 800px;
+    margin: 0 auto 24px auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  .controls input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .hint { color: var(--muted); font-size: 0.85rem; }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .card-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .line + .line {
+    border-top: 1px dashed var(--border);
+  }
+
+  .tag {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-top: 2px;
+  }
+  .tag.q { background: #dbeafe; color: var(--primary-dark); }
+  .tag.a { background: #d1fae5; color: var(--answer-dark); }
+
+  .text {
+    flex: 1;
+    font-size: 1.02rem;
+  }
+
+  .play-btn {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+  }
+  .play-btn:active { transform: scale(0.92); }
+  .play-btn.q-btn { background: var(--primary); }
+  .play-btn.q-btn:hover { background: var(--primary-dark); }
+  .play-btn.a-btn { background: var(--answer); }
+  .play-btn.a-btn:hover { background: var(--answer-dark); }
+  .play-btn.playing { opacity: 0.6; }
+
+  footer {
+    max-width: 800px;
+    margin: 30px auto 10px auto;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .no-support {
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: none;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗣️ Listen &amp; Repeat Practice</h1>
+  <div class="subtitle">Tap the speaker to hear each line. Repeat it out loud, then check the next one.</div>
+</header>
+
+<div class="no-support" id="noSupport">
+  Your browser doesn't support text-to-speech. Try opening this page in Chrome, Edge, or Safari.
+</div>
+
+<div class="controls">
+  <label for="slowToggle">
+    <input type="checkbox" id="slowToggle">
+    🐢 Slow speed for listening practice
+  </label>
+  <span class="hint">(toggle on for a slower, clearer pace)</span>
+</div>
+
+<div class="container" id="cardContainer"></div>
+
+<footer>
+  Tap 🔊 next to each line to hear it, then repeat it aloud.
+</footer>
+
+<script>
+const qaPairs = [
+  ["Do you get hungry before lunch?", "Yes, I get hungry around eleven every day."],
+  ["Did you get lost on your trip?", "Yes, I got lost for about twenty minutes."],
+  ["Are you getting tired after today's class?", "Yes, I'm getting tired because we have studied for three hours."],
+  ["Are you going to get wet if you don't take an umbrella?", "Yes, I'm probably going to get wet."],
+  ["Have you ever gotten sick after eating street food?", "Yes, I have gotten sick once."],
+  ["Were you getting nervous before the interview?", "Yes, I was getting nervous while I was waiting."],
+  ["Does your teacher get angry when students are late?", "No, she usually stays calm."],
+  ["Did your coffee get cold?", "Yes, it got cold because I forgot about it."],
+  ["Is the weather getting colder this week?", "Yes, it is getting much colder."],
+  ["Are your parents going to get upset if you're late?", "Yes, they are going to get upset."],
+  ["Have you ever gotten confused by a teacher's explanation?", "Yes, I have, but I asked questions."],
+  ["Were the children getting sleepy during the movie?", "Yes, they were getting sleepy near the end."],
+  ["Do you get excited before your birthday?", "Yes, I always do."],
+  ["Did your clothes get wet yesterday?", "Yes, they got wet in the rain."],
+  ["Is your brother getting impatient?", "Yes, he's getting impatient because we're late."],
+  ["Is the room going to get noisy after lunch?", "Yes, it is going to get noisy."],
+  ["Have you ever gotten lucky in a raffle?", "Yes, I have won a small prize."],
+  ["Was the sky getting dark before the storm?", "Yes, it was getting dark very quickly."],
+  ["Do you get scared when you watch horror movies?", "No, I don't get scared easily."],
+  ["Are you going to get serious about learning English this year?", "Yes, I'm going to study every day."]
+];
+
+const container = document.getElementById('cardContainer');
+const slowToggle = document.getElementById('slowToggle');
+const noSupport = document.getElementById('noSupport');
+
+if (!('speechSynthesis' in window)) {
+  noSupport.style.display = 'block';
+}
+
+let voices = [];
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+}
+loadVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function pickEnglishVoice() {
+  return voices.find(v => v.lang === 'en-US')
+      || voices.find(v => v.lang && v.lang.startsWith('en'))
+      || null;
+}
+
+function speak(text, btn) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel(); // stop anything currently playing
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voice = pickEnglishVoice();
+  if (voice) utterance.voice = voice;
+  utterance.lang = 'en-US';
+  utterance.rate = slowToggle.checked ? 0.6 : 1;
+  utterance.pitch = 1;
+
+  btn.classList.add('playing');
+  utterance.onend = () => btn.classList.remove('playing');
+  utterance.onerror = () => btn.classList.remove('playing');
+
+  speechSynthesis.speak(utterance);
+}
+
+qaPairs.forEach(([question, answer], i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  card.innerHTML = `
+    <div class="card-number">ITEM ${i + 1}</div>
+    <div class="line">
+      <span class="tag q">Q</span>
+      <span class="text">${question}</span>
+      <button class="play-btn q-btn" aria-label="Play question">🔊</button>
+    </div>
+    <div class="line">
+      <span class="tag a">A</span>
+      <span class="text">${answer}</span>
+      <button class="play-btn a-btn" aria-label="Play answer">🔊</button>
+    </div>
+  `;
+
+  const qBtn = card.querySelector('.q-btn');
+  const aBtn = card.querySelector('.a-btn');
+  qBtn.addEventListener('click', () => speak(question, qBtn));
+  aBtn.addEventListener('click', () => speak(answer, aBtn));
+
+  container.appendChild(card);
+});
+</script>
+
+</body>
+</html>
